@@ -5,7 +5,7 @@ MAX_TITLE_LEN = 256
 MAX_LOCATION_NAME_LEN = 256
 
 # Количество постов на главной странице
-POSTS_PER_PAGE = 5
+POSTS_PER_PAGE = 10
 
 # Длина отображаемого заголовка
 DISPLAY_LEN = 20

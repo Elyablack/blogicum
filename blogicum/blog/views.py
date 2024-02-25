@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import now
 
@@ -10,13 +11,15 @@ def get_filtered_posts(post_manager):
         pub_date__lte=now(),
         is_published=True,
         category__is_published=True
-    ).select_related('author', 'location', 'category')
+    ).select_related('author', 'location', 'category').order_by('id')
 
 
 def index(request):
-    posts = get_filtered_posts(Post.objects)[:POSTS_PER_PAGE]
-    return render(request, 'blog/index.html', {'posts': posts})
-
+    posts = get_filtered_posts(Post.objects)
+    paginator = Paginator(posts, POSTS_PER_PAGE)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'blog/index.html', {'page_obj': page_obj})
 
 def category_posts(request, category_slug):
     category = get_object_or_404(
@@ -25,10 +28,13 @@ def category_posts(request, category_slug):
         is_published=True
     )
     posts = get_filtered_posts(category.posts.all())
+    paginator = Paginator(posts, POSTS_PER_PAGE)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(
         request,
         'blog/category.html',
-        {'category': category, 'posts': posts}
+        {'category': category, 'page_obj': page_obj}
     )
 
 

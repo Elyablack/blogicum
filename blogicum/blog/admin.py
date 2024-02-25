@@ -9,7 +9,7 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 
 
-class PostInline(admin.StackedInline):
+class PostInline(admin.TabularInline):
     model = Post
     extra = 0
 
