@@ -2,10 +2,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 
-from .models import Post, Category
+from .forms import CommentForm, PostForm
+from .models import Post, Category, Comment
 from .constants import POSTS_PER_PAGE
 
 
@@ -51,7 +52,17 @@ def post_detail(request, post_id):
         get_filtered_posts(post_manager),
         pk=post_id
     )
-    return render(request, 'blog/detail.html', {'post': post})
+    comments = post.comments.all()
+    form = CommentForm()
+    return render(
+        request,
+        'blog/detail.html',
+        context={
+                    'post': post,
+                    'comments': comments,
+                    'requser': request.user,
+                    'form': form,
+        })
 
 
 @login_required
@@ -66,3 +77,57 @@ def profile(request, username):
         'blog/profile.html',
         {'page_obj': page_obj, 'profile': profile_user}
     )
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+    return redirect('blog:post_detail', post_id=post_id)
+
+
+@login_required
+def post_create(request):
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None)
+    if form.is_valid():
+        create_post = form.save(commit=False)
+        create_post.author = request.user
+        create_post.pub_date = now()
+
+        if create_post.pub_date > now():
+            create_post.is_published = False
+        else:
+            create_post.is_published = True
+
+        create_post.save()
+        return redirect('blog:profile', username=request.user.username)
+
+    return render(
+        request,
+        'blog/create.html',
+        context={'form': form}
+    )
+
+
+@login_required
+def post_edit(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user != post.author:
+        return redirect('blog:profile', username=request.user.username)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post)
+    if form.is_valid():
+        form.save()
+        return redirect('blog:profile', username=request.user.username)
+    template = 'blog/create.html'
+    context = {'form': form, 'post': post, 'is_edit': True}
+    return render(request, template, context)

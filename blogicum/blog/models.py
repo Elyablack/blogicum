@@ -111,3 +111,29 @@ class Post(PostForm):
 
     def __str__(self):
         return self.title[:DISPLAY_LEN]
+
+
+class Comment(PostForm):
+    post = models.ForeignKey(
+        'Post',
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Пост'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор'
+    )
+    text = models.TextField(verbose_name='Комментарий')
+    updated = models.DateTimeField(auto_now=True, verbose_name='Обновлен')
+    active = models.BooleanField(default=True, verbose_name='Активен')
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Комментарии'
+        verbose_name = 'Комментарий'
+
+    def __str__(self):
+        return self.text

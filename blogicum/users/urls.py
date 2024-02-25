@@ -13,7 +13,9 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
-    path('registration/', views.RegForm.as_view(), name='registration'),
+    path('registration/', views.CreateProfileView.as_view(), name='registration'),
+
+    path('profile/edit/', views.EditProfileView.as_view(), name='edit_profile'),
 
     path('logout/', LogoutView.as_view(
         template_name='users/logged_out.html'), name='logout'),
