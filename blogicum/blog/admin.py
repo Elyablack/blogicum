@@ -9,6 +9,11 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 
 
+class PostInline(admin.StackedInline):
+    model = Post
+    extra = 0
+
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     @admin.display(description='Количество постов у пользователя')
@@ -20,12 +25,13 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    inlines = (PostInline,)
     list_display = (
         'title',
         'description',
         'slug',
         'is_published',
-        'created_at'
+        'created_at',
     )
     list_filter = ('is_published',)
     search_fields = ('title', 'description')
@@ -35,6 +41,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
+    inlines = (PostInline,)
     list_display = (
         'name',
         'is_published',
