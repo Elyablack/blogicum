@@ -1,3 +1,4 @@
+# blog/models.py
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -96,6 +97,11 @@ class Post(PostForm):
         null=True,
         verbose_name='Категория',
         related_name='posts'
+    )
+    image = models.ImageField(
+        'Картинка',
+        upload_to='posts/',
+        blank=True
     )
 
     class Meta:
