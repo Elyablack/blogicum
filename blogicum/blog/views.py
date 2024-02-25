@@ -45,3 +45,16 @@ def post_detail(request, post_id):
         pk=post_id
     )
     return render(request, 'blog/detail.html', {'post': post})
+
+
+def profile(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=profile_user, is_published=True)
+    paginator = Paginator(posts, POSTS_PER_PAGE)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(
+        request,
+        'blog/profile.html',
+        {'page_obj': page_obj, 'profile': profile_user}
+    )
