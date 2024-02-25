@@ -1,9 +1,15 @@
+# blog/views.py
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import now
 
 from .models import Post, Category
 from .constants import POSTS_PER_PAGE
+
+
+User = get_user_model()
 
 
 def get_filtered_posts(post_manager):
@@ -20,6 +26,7 @@ def index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'blog/index.html', {'page_obj': page_obj})
+
 
 def category_posts(request, category_slug):
     category = get_object_or_404(
@@ -47,6 +54,7 @@ def post_detail(request, post_id):
     return render(request, 'blog/detail.html', {'post': post})
 
 
+@login_required
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=profile_user, is_published=True)
