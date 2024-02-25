@@ -48,10 +48,10 @@ class LocationAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = (
+        'pk',
         'title',
         'author',
         'category',
-        'location',
         'pub_date',
         'is_published'
     )
