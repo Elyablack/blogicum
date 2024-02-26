@@ -68,7 +68,7 @@ def post_detail(request, post_id):
 @login_required
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=profile_user, is_published=True)
+    posts = Post.objects.filter(author=profile_user)
     paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
