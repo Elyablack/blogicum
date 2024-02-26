@@ -120,14 +120,14 @@ def post_create(request):
 def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
-        return redirect('blog:profile', username=request.user.username)
-    form = PostForm(
-        request.POST or None,
-        files=request.FILES or None,
-        instance=post)
-    if form.is_valid():
-        form.save()
-        return redirect('blog:profile', username=request.user.username)
+        return redirect('blog:post_detail', post_id=post_id)
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('blog:post_detail', post_id=post_id)
+    else:
+        form = PostForm(instance=post)
     template = 'blog/create.html'
     context = {'form': form, 'post': post, 'is_edit': True}
     return render(request, template, context)
