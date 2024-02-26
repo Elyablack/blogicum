@@ -52,7 +52,7 @@ def post_detail(request, post_id):
         get_filtered_posts(post_manager),
         pk=post_id
     )
-    comments = post.comments.all()
+    comments = post.comments.all().order_by('created_at')
     form = CommentForm()
     return render(
         request,
@@ -114,10 +114,17 @@ def edit_comment(request, post_id, comment_id):
 @login_required
 def comment_delete(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user == comment.author:
+    if request.user != comment.author:
+        return redirect('blog:post_detail', post_id=post_id)
+    if request.method == 'POST':
         comment.delete()
-    return redirect('blog:post_detail', post_id=post_id)
-
+        return redirect('blog:post_detail', post_id=post_id)
+    context = {'comment': comment}
+    return render(
+        request,
+        'blog/comment.html',
+        context=context
+    )
 
 @login_required
 def post_create(request):
