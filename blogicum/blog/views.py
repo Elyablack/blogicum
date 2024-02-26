@@ -79,10 +79,9 @@ def profile(request, username):
     )
 
 
-
 @login_required
 def add_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, id=post_id, is_published=True)
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)
@@ -106,7 +105,7 @@ def edit_comment(request, post_id, comment_id):
         return render(
             request,
             'blog/comment.html',
-            {'form': form, 'comment': comment}
+            {'form': form, 'comment': comment, 'post_id': post_id, 'comment_id': comment_id}
         )
     else:
         return redirect('blog:post_detail', post_id=post_id)

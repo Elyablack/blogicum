@@ -21,6 +21,8 @@ TEMPLATES = [
     },
 ]
 
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+
 
 SECRET_KEY = 'django-insecure-cj&k!%(2r10wp*%r*)@kekr6oahw=yah@^%o6)cch8sr#&qyi='
 
@@ -89,7 +91,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 LANGUAGE_CODE = 'ru-RU'
 
