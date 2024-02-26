@@ -92,6 +92,34 @@ def add_comment(request, post_id):
 
 
 @login_required
+def edit_comment(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.user == comment.author:
+        if request.method == 'POST':
+            form = CommentForm(request.POST, instance=comment)
+            if form.is_valid():
+                form.save()
+                return redirect('blog:post_detail', post_id=post_id)
+        else:
+            form = CommentForm(instance=comment)
+        return render(
+            request,
+            'blog/comment.html',
+            {'form': form, 'comment': comment}
+        )
+    else:
+        return redirect('blog:post_detail', post_id=post_id)
+
+
+@login_required
+def comment_delete(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.user == comment.author:
+        comment.delete()
+    return redirect('blog:post_detail', post_id=post_id)
+
+
+@login_required
 def post_create(request):
     form = PostForm(
         request.POST or None,
@@ -125,9 +153,17 @@ def post_edit(request, post_id):
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('blog:post_detail', post_id=post_id)
+            return redirect('blog:profile', username=request.user.username)
     else:
         form = PostForm(instance=post)
     template = 'blog/create.html'
     context = {'form': form, 'post': post, 'is_edit': True}
     return render(request, template, context)
+
+
+@login_required
+def post_delete(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user == post.author:
+        post.delete()
+    return redirect('blog:profile', username=request.user.username)

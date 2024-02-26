@@ -10,6 +10,7 @@ class PostForm(forms.ModelForm):
         fields = ['text', 'category', 'image']
 
 
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
