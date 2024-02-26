@@ -1,7 +1,6 @@
 # blog/models.py
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models import Count
 
 from .constants import (
     MAX_TITLE_LEN,
@@ -118,7 +117,7 @@ class Post(PostForm):
         return self.title[:DISPLAY_LEN]
 
 
-class Comment(PostForm):
+class Comment(models.Model):
     post = models.ForeignKey(
         'Post',
         on_delete=models.CASCADE,
@@ -132,8 +131,15 @@ class Comment(PostForm):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Комментарий')
-    updated = models.DateTimeField(auto_now=True, verbose_name='Обновлен')
-    active = models.BooleanField(default=True, verbose_name='Активен')
+    is_published = models.BooleanField(
+        'Опубликовано',
+        default=True,
+        help_text='Снимите галочку, чтобы скрыть комментарий.'
+    )
+    created_at = models.DateTimeField(
+        'Добавлено',
+        auto_now_add=True,
+    )
 
     class Meta:
         ordering = ['-created_at']
