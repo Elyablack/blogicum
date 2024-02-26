@@ -1,6 +1,7 @@
 # blog/models.py
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 
 from .constants import (
     MAX_TITLE_LEN,
@@ -103,6 +104,10 @@ class Post(PostForm):
         upload_to='posts/',
         blank=True
     )
+
+    @property
+    def comment_count(self):
+        return self.comments.count()
 
     class Meta:
         verbose_name = 'публикация'
