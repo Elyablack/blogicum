@@ -75,8 +75,9 @@ def profile(request, username):
     return render(
         request,
         'blog/profile.html',
-        {'page_obj': page_obj, 'profile': profile_user}
+        {'page_obj': page_obj, 'profile': profile_user, 'posts': posts}
     )
+
 
 
 @login_required
