@@ -21,7 +21,7 @@ TEMPLATES = [
     },
 ]
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 
 
 SECRET_KEY = 'django-insecure-cj&k!%(2r10wp*%r*)@kekr6oahw=yah@^%o6)cch8sr#&qyi='
@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'pages.apps.PagesConfig',
     'blog.apps.BlogConfig',
     'users.apps.UsersConfig',
-    'core.apps.CoreConfig',
     'django_bootstrap5',
 ]
 
