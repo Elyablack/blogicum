@@ -24,3 +24,7 @@ class ProfileEditForm(UserChangeForm):
             'last_name',
             'email',
         )
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileEditForm, self).__init__(*args, **kwargs)
+        self.fields.pop('password')
