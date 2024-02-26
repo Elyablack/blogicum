@@ -13,15 +13,15 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
-    path('registration/', views.CreateProfileView.as_view(), name='registration'),
+    path('', views.CreateProfileView.as_view(), name='registration'),
 
     path('profile/edit/<str:username>/', views.EditProfileView.as_view(), name='edit_profile'),
 
     path('logout/', LogoutView.as_view(
-        template_name='users/logged_out.html'), name='logout'),
+        template_name='registration/logged_out.html'), name='logout'),
 
     path('login/', LoginView.as_view(
-        template_name='users/login.html'), name='login'),
+        template_name='registration/login.html'), name='login'),
 
     path('password_change/', PasswordChangeView.as_view(
         template_name='users/password_change_form.html'),
