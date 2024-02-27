@@ -5,10 +5,9 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 
+from .constants import POSTS_PER_PAGE
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment
-from .constants import POSTS_PER_PAGE
-
 
 User = get_user_model()
 
