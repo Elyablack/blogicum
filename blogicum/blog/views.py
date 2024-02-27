@@ -48,10 +48,13 @@ def category_posts(request, category_slug):
 
 def post_detail(request, post_id):
     post_manager = Post.objects
-    post = get_object_or_404(
-        get_filtered_posts(post_manager),
-        pk=post_id
-    )
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.author:
+        post = get_object_or_404(
+            get_filtered_posts(post_manager),
+            pk=post_id
+        )
+
     comments = post.comments.all().order_by('created_at')
     form = CommentForm()
     return render(

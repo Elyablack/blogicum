@@ -1,16 +1,13 @@
 # urls.py
 from django.conf import settings
 from django.conf.urls.static import static
-
 from django.contrib import admin
-
 from django.urls import path, include
-from django.views.generic import CreateView
 
 from users.views import CreateProfileView
 
 urlpatterns = [
-    path('registration/', include('users.urls')),
+    path('accounts/', include('users.urls')),
     path('', include('blog.urls')),
     path('auth/', include('django.contrib.auth.urls')),
     path(
