@@ -60,10 +60,10 @@ def post_detail(request, post_id):
         request,
         'blog/detail.html',
         context={
-                    'post': post,
-                    'comments': comments,
-                    'requser': request.user,
-                    'form': form,
+            'post': post,
+            'comments': comments,
+            'requser': request.user,
+            'form': form
         })
 
 
@@ -106,8 +106,12 @@ def edit_comment(request, post_id, comment_id):
         return render(
             request,
             'blog/comment.html',
-            {'form': form, 'comment': comment, 'post_id': post_id, 'comment_id': comment_id}
-        )
+            {
+                'form': form,
+                'comment': comment,
+                'post_id': post_id,
+                'comment_id': comment_id
+            })
     else:
         return redirect('blog:post_detail', post_id=post_id)
 

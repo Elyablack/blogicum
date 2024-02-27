@@ -11,9 +11,9 @@ urlpatterns = [
     path('', include('blog.urls')),
     path('auth/', include('django.contrib.auth.urls')),
     path(
-      'auth/registration/',
-      CreateProfileView.as_view(),
-      name='registration',
+        'auth/registration/',
+        CreateProfileView.as_view(),
+        name='registration',
     ),
 
     path('admin/', admin.site.urls),
