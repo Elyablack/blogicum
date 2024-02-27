@@ -11,7 +11,7 @@ from .constants import (
 User = get_user_model()
 
 
-class PostForm(models.Model):
+class BaseModel(models.Model):
     is_published = models.BooleanField(
         'Опубликовано',
         default=True,
@@ -26,7 +26,7 @@ class PostForm(models.Model):
         abstract = True
 
 
-class Category(PostForm):
+class Category(BaseModel):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -50,7 +50,7 @@ class Category(PostForm):
         return self.title[:DISPLAY_LEN]
 
 
-class Location(PostForm):
+class Location(BaseModel):
     name = models.CharField(
         max_length=MAX_LOCATION_NAME_LEN,
         verbose_name='Название места'
@@ -64,7 +64,7 @@ class Location(PostForm):
         return self.name[:DISPLAY_LEN]
 
 
-class Post(PostForm):
+class Post(BaseModel):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
