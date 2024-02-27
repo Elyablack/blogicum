@@ -48,10 +48,13 @@ def category_posts(request, category_slug):
 
 def post_detail(request, post_id):
     post_manager = Post.objects
-    post = get_object_or_404(
-        get_filtered_posts(post_manager),
-        pk=post_id
-    )
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.author:
+        post = get_object_or_404(
+            get_filtered_posts(post_manager),
+            pk=post_id
+        )
+
     comments = post.comments.all().order_by('created_at')
     form = CommentForm()
     return render(
@@ -65,7 +68,6 @@ def post_detail(request, post_id):
         })
 
 
-@login_required
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=profile_user)
@@ -126,6 +128,7 @@ def comment_delete(request, post_id, comment_id):
         context=context
     )
 
+
 @login_required
 def post_create(request):
     form = PostForm(
@@ -156,13 +159,15 @@ def post_edit(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
         return redirect('blog:post_detail', post_id=post_id)
-    if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            form.save()
-            return redirect('blog:profile', username=request.user.username)
-    else:
-        form = PostForm(instance=post)
+
+    form = PostForm(request.POST or None,
+                    request.FILES or None,
+                    instance=post)
+
+    if form.is_valid():
+        form.save()
+        return redirect('blog:post_detail', post_id=post_id)
+
     template = 'blog/create.html'
     context = {'form': form, 'post': post, 'is_edit': True}
     return render(request, template, context)
