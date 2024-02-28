@@ -1,4 +1,3 @@
-# users/views.py
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -25,4 +24,4 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('blog:profile',
-                            args=(self.request.user.username, ))
+                            args=(self.request.user.username,))

@@ -1,4 +1,3 @@
-# blog/constants.py
 # Длина максимального заголовка
 MAX_TITLE_LEN = 256
 

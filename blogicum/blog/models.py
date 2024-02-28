@@ -1,4 +1,3 @@
-# blog/models.py
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -11,22 +10,26 @@ from .constants import (
 User = get_user_model()
 
 
-class PostForm(models.Model):
+class CreatedAt(models.Model):
+    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
+
+    class Meta:
+        abstract = True
+        ordering = ['-created_at']
+
+
+class IsPublishedCreatedAt(CreatedAt):
     is_published = models.BooleanField(
         'Опубликовано',
         default=True,
         help_text='Снимите галочку, чтобы скрыть публикацию.'
     )
-    created_at = models.DateTimeField(
-        'Добавлено',
-        auto_now_add=True,
-    )
 
-    class Meta:
+    class Meta(CreatedAt.Meta):
         abstract = True
 
 
-class Category(PostForm):
+class Category(IsPublishedCreatedAt):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -42,7 +45,7 @@ class Category(PostForm):
         )
     )
 
-    class Meta:
+    class Meta(CreatedAt.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
@@ -50,13 +53,13 @@ class Category(PostForm):
         return self.title[:DISPLAY_LEN]
 
 
-class Location(PostForm):
+class Location(IsPublishedCreatedAt):
     name = models.CharField(
         max_length=MAX_LOCATION_NAME_LEN,
         verbose_name='Название места'
     )
 
-    class Meta:
+    class Meta(CreatedAt.Meta):
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
@@ -64,7 +67,7 @@ class Location(PostForm):
         return self.name[:DISPLAY_LEN]
 
 
-class Post(PostForm):
+class Post(IsPublishedCreatedAt):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -99,7 +102,7 @@ class Post(PostForm):
         related_name='posts'
     )
     image = models.ImageField(
-        'Картинка',
+        'Изображение',
         upload_to='posts/',
         blank=True
     )
@@ -117,7 +120,7 @@ class Post(PostForm):
         return self.title[:DISPLAY_LEN]
 
 
-class Comment(models.Model):
+class Comment(CreatedAt):
     post = models.ForeignKey(
         'Post',
         on_delete=models.CASCADE,
@@ -131,20 +134,10 @@ class Comment(models.Model):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Комментарий')
-    is_published = models.BooleanField(
-        'Опубликовано',
-        default=True,
-        help_text='Снимите галочку, чтобы скрыть комментарий.'
-    )
-    created_at = models.DateTimeField(
-        'Добавлено',
-        auto_now_add=True,
-    )
 
-    class Meta:
-        ordering = ['-created_at']
+    class Meta(CreatedAt.Meta):
         verbose_name_plural = 'Комментарии'
         verbose_name = 'Комментарий'
 
     def __str__(self):
-        return self.text
+        return self.text[:DISPLAY_LEN]
