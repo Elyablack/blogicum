@@ -123,7 +123,8 @@ class EditPostFormTester(PostFormTester):
         self, updated_form: BaseForm, qs: QuerySet, item_adapter: ModelAdapterT
     ) -> HttpResponse:
         try:
-            return super().test_edit_item(updated_form, qs, item_adapter)
+            res = super().test_edit_item(updated_form, qs, item_adapter)
+            return res
         except UnauthorizedEditException:
             raise AssertionError(
                 "Убедитесь, что пользователь не может редактировать чужие"
@@ -134,7 +135,7 @@ class EditPostFormTester(PostFormTester):
                 "Убедитесь, что неаутентифицированный пользователь не может"
                 " редактировать посты."
             )
-        except AuthenticatedEditException:
+        except AuthenticatedEditException as ex:
             raise AssertionError(
                 "Убедитесь, что пользователь может редактировать свои посты."
             )
