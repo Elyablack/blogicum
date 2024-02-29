@@ -1,32 +1,21 @@
-# blog/models.py
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from .constants import (
     MAX_TITLE_LEN,
     MAX_LOCATION_NAME_LEN,
     DISPLAY_LEN,
 )
+from .service import PostManager, CommentManager
 
 User = get_user_model()
-
-
-class BaseModel(models.Model):
     is_published = models.BooleanField(
         'Опубликовано',
         default=True,
         help_text='Снимите галочку, чтобы скрыть публикацию.'
     )
-    created_at = models.DateTimeField(
-        'Добавлено',
-        auto_now_add=True,
-    )
-
-    class Meta:
-        abstract = True
 
 
-class Category(BaseModel):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -42,29 +31,22 @@ class Category(BaseModel):
         )
     )
 
-    class Meta:
+    class Meta(CreatedAt.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:DISPLAY_LEN]
-
-
-class Location(BaseModel):
-    name = models.CharField(
+        return self.title[:DISPLAY_LEN]ield(
         max_length=MAX_LOCATION_NAME_LEN,
         verbose_name='Название места'
     )
 
-    class Meta:
+    class Meta(CreatedAt.Meta):
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name[:DISPLAY_LEN]
 
-
-class Post(BaseModel):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -99,14 +81,11 @@ class Post(BaseModel):
         related_name='posts'
     )
     image = models.ImageField(
-        'Картинка',
+        'Изображение',
         upload_to='posts/',
         blank=True
     )
-
-    @property
-    def comment_count(self):
-        return self.comments.count()
+    objects = PostManager()
 
     class Meta:
         verbose_name = 'публикация'
@@ -117,7 +96,7 @@ class Post(BaseModel):
         return self.title[:DISPLAY_LEN]
 
 
-class Comment(models.Model):
+class Comment(CreatedAt):
     post = models.ForeignKey(
         'Post',
         on_delete=models.CASCADE,
@@ -131,20 +110,11 @@ class Comment(models.Model):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Комментарий')
-    is_published = models.BooleanField(
-        'Опубликовано',
-        default=True,
-        help_text='Снимите галочку, чтобы скрыть комментарий.'
-    )
-    created_at = models.DateTimeField(
-        'Добавлено',
-        auto_now_add=True,
-    )
+    objects = CommentManager()
 
-    class Meta:
-        ordering = ['-created_at']
+    class Meta(CreatedAt.Meta):
         verbose_name_plural = 'Комментарии'
         verbose_name = 'Комментарий'
 
     def __str__(self):
-        return self.text
+        return self.text[:DISPLAY_LEN]
