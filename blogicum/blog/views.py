@@ -1,24 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
-from django.utils.timezone import now
 
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment, User
-from .services import create_paginator
-from django.db.models import Count
-
-
-def get_post_annotation(posts_queryset):
-    return posts_queryset.annotate(comment_count=Count('comments'))
-
-
-def filter_published_posts(posts_queryset):
-    return posts_queryset.filter(
-        pub_date__lte=now(),
-        is_published=True,
-        category__is_published=True
-    ).select_related('author', 'location', 'category').order_by('-pub_date')
+from .services import (
+    create_paginator, filter_published_posts,
+)
 
 
 def category_posts(request, category_slug):
