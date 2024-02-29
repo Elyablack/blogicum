@@ -1,12 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 
-from .constants import POSTS_PER_PAGE
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment, User
+from .services import create_paginator
 
 
 def get_filtered_posts(post_manager):
@@ -17,14 +15,6 @@ def get_filtered_posts(post_manager):
     ).select_related('author', 'location', 'category').order_by('-pub_date')
 
 
-def index(request):
-    posts = get_filtered_posts(Post.objects)
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'blog/index.html', {'page_obj': page_obj})
-
-
 def category_posts(request, category_slug):
     category = get_object_or_404(
         Category,
@@ -32,9 +22,7 @@ def category_posts(request, category_slug):
         is_published=True
     )
     posts = get_filtered_posts(category.posts.all())
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = create_paginator(posts, request)
     return render(
         request,
         'blog/category.html',
@@ -67,14 +55,18 @@ def post_detail(request, post_id):
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=profile_user)
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = create_paginator(posts, request)
     return render(
         request,
         'blog/profile.html',
         {'page_obj': page_obj, 'profile': profile_user, 'posts': posts}
     )
+
+
+def index(request):
+    posts = get_filtered_posts(Post.objects)
+    page_obj = create_paginator(posts, request)
+    return render(request, 'blog/index.html', {'page_obj': page_obj})
 
 
 @login_required
