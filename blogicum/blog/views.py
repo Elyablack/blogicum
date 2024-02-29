@@ -7,14 +7,6 @@ from .models import Post, Category, Comment, User
 from .services import create_paginator
 
 
-def get_filtered_posts(post_manager):
-    return post_manager.filter(
-        pub_date__lte=now(),
-        is_published=True,
-        category__is_published=True
-    ).select_related('author', 'location', 'category').order_by('-pub_date')
-
-
 def category_posts(request, category_slug):
     category = get_object_or_404(
         Category,
@@ -28,6 +20,14 @@ def category_posts(request, category_slug):
         'blog/category.html',
         {'category': category, 'page_obj': page_obj}
     )
+
+
+def get_filtered_posts(post_manager):
+    return post_manager.filter(
+        pub_date__lte=now(),
+        is_published=True,
+        category__is_published=True
+    ).select_related('author', 'location', 'category').order_by('-pub_date')
 
 
 def post_detail(request, post_id):
@@ -161,7 +161,7 @@ def post_edit(request, post_id):
     return render(
         request,
         'blog/create.html',
-        context = {'form': form, 'post': post, 'is_edit': True})
+        context={'form': form, 'post': post, 'is_edit': True})
 
 
 @login_required
