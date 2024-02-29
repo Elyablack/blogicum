@@ -6,16 +6,30 @@ from .constants import (
     MAX_LOCATION_NAME_LEN,
     DISPLAY_LEN,
 )
-from .service import PostManager, CommentManager
 
 User = get_user_model()
+
+
+class CreatedAt(models.Model):
+    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
+
+    class Meta:
+        abstract = True
+        ordering = ['-created_at']
+
+
+class IsPublishedCreatedAt(CreatedAt):
     is_published = models.BooleanField(
         'Опубликовано',
         default=True,
         help_text='Снимите галочку, чтобы скрыть публикацию.'
     )
 
+    class Meta(CreatedAt.Meta):
+        abstract = True
 
+
+class Category(IsPublishedCreatedAt):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -36,7 +50,11 @@ User = get_user_model()
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:DISPLAY_LEN]ield(
+        return self.title[:DISPLAY_LEN]
+
+
+class Location(IsPublishedCreatedAt):
+    name = models.CharField(
         max_length=MAX_LOCATION_NAME_LEN,
         verbose_name='Название места'
     )
@@ -46,7 +64,10 @@ User = get_user_model()
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
+        return self.name[:DISPLAY_LEN]
 
+
+class Post(IsPublishedCreatedAt):
     title = models.CharField(
         max_length=MAX_TITLE_LEN,
         verbose_name='Заголовок'
@@ -85,7 +106,10 @@ User = get_user_model()
         upload_to='posts/',
         blank=True
     )
-    objects = PostManager()
+
+    @property
+    def comment_count(self):
+        return self.comments.count()
 
     class Meta:
         verbose_name = 'публикация'
@@ -110,7 +134,6 @@ class Comment(CreatedAt):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Комментарий')
-    objects = CommentManager()
 
     class Meta(CreatedAt.Meta):
         verbose_name_plural = 'Комментарии'

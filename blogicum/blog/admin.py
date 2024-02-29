@@ -78,7 +78,6 @@ class PostAdmin(admin.ModelAdmin):
         else:
             return 'Без изображения'
 
-
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
