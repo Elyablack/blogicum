@@ -1,27 +1,15 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 
-from .constants import POSTS_PER_PAGE
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment, User
-
-
-def get_filtered_posts(post_manager):
-    return post_manager.filter(
-        pub_date__lte=now(),
-        is_published=True,
-        category__is_published=True
-    ).select_related('author', 'location', 'category').order_by('-pub_date')
+from .service import paginate_posts
 
 
 def index(request):
-    posts = get_filtered_posts(Post.objects)
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    posts = Post.objects.get_queryset().get_filtered_posts()
+    page_obj = paginate_posts(posts, request.GET.get('page'))
     return render(request, 'blog/index.html', {'page_obj': page_obj})
 
 
@@ -31,10 +19,8 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True
     )
-    posts = get_filtered_posts(category.posts.all())
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    posts = category.posts.get_filtered_posts()
+    page_obj = paginate_posts(posts, request.GET.get('page'))
     return render(
         request,
         'blog/category.html',
@@ -43,15 +29,11 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, post_id):
-    post_manager = Post.objects
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.author:
-        post = get_object_or_404(
-            get_filtered_posts(post_manager),
-            pk=post_id
-        )
-
-    comments = post.comments.all().order_by('created_at')
+        post = Post.objects.get_queryset().get(pk=post_id)
+    comments_queryset = post.comments.all()
+    comments = comments_queryset.annotate_total_comments()
     form = CommentForm()
     return render(
         request,
@@ -66,10 +48,9 @@ def post_detail(request, post_id):
 
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=profile_user)
-    paginator = Paginator(posts, POSTS_PER_PAGE)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    posts = Post.objects.get_queryset().filter(
+        author=profile_user).get_filtered_posts()
+    page_obj = paginate_posts(posts, request.GET.get('page'))
     return render(
         request,
         'blog/profile.html',

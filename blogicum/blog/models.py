@@ -6,6 +6,7 @@ from .constants import (
     MAX_LOCATION_NAME_LEN,
     DISPLAY_LEN,
 )
+from .service import PostManager, CommentManager
 
 User = get_user_model()
 
@@ -106,10 +107,7 @@ class Post(IsPublishedCreatedAt):
         upload_to='posts/',
         blank=True
     )
-
-    @property
-    def comment_count(self):
-        return self.comments.count()
+    objects = PostManager()
 
     class Meta:
         verbose_name = 'публикация'
@@ -134,6 +132,7 @@ class Comment(CreatedAt):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Комментарий')
+    objects = CommentManager()
 
     class Meta(CreatedAt.Meta):
         verbose_name_plural = 'Комментарии'
