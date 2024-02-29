@@ -111,31 +111,31 @@ def comment_delete(request, post_id, comment_id):
     if request.method == 'POST':
         comment.delete()
         return redirect('blog:post_detail', post_id=post_id)
-    context = {'comment': comment}
     return render(
         request,
         'blog/comment.html',
-        context=context
+        context={'comment': comment}
     )
 
 
 @login_required
 def post_create(request):
-    form = PostForm(
-        request.POST or None,
-        files=request.FILES or None)
-    if form.is_valid():
+    if request.method == 'POST':
+        form = PostForm(request.POST, files=request.FILES)
+        if not form.is_valid():
+            return render(
+                request,
+                'blog/create.html',
+                context={'form': form}
+            )
+
         create_post = form.save(commit=False)
         create_post.author = request.user
-        create_post.pub_date = now()
-
-        if create_post.pub_date > now():
-            create_post.is_published = False
-        else:
-            create_post.is_published = True
 
         create_post.save()
         return redirect('blog:profile', username=request.user.username)
+    else:
+        form = PostForm()
 
     return render(
         request,
@@ -158,9 +158,10 @@ def post_edit(request, post_id):
         form.save()
         return redirect('blog:post_detail', post_id=post_id)
 
-    template = 'blog/create.html'
-    context = {'form': form, 'post': post, 'is_edit': True}
-    return render(request, template, context)
+    return render(
+        request,
+        'blog/create.html',
+        context = {'form': form, 'post': post, 'is_edit': True})
 
 
 @login_required
