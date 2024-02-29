@@ -40,15 +40,13 @@ def post_detail(request, post_id):
 
     comments = post.comments.all().order_by('created_at')
     page_obj = create_paginator(comments, request)
-    form = CommentForm()
     return render(
         request,
         'blog/detail.html',
         context={
             'post': post,
             'page_obj': page_obj,
-            'requser': request.user,
-            'form': form
+            'form': CommentForm()
         })
 
 
@@ -84,25 +82,25 @@ def add_comment(request, post_id):
 @login_required
 def edit_comment(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user == comment.author:
-        if request.method == 'POST':
-            form = CommentForm(request.POST, instance=comment)
-            if form.is_valid():
-                form.save()
-                return redirect('blog:post_detail', post_id=post_id)
-        else:
-            form = CommentForm(instance=comment)
-        return render(
-            request,
-            'blog/comment.html',
-            {
-                'form': form,
-                'comment': comment,
-                'post_id': post_id,
-                'comment_id': comment_id
-            })
-    else:
+
+    if request.user != comment.author:
         return redirect('blog:post_detail', post_id=post_id)
+
+    form = CommentForm(request.POST or None, instance=comment)
+    if form.is_valid():
+        form.save()
+        return redirect('blog:post_detail', post_id=post_id)
+
+    return render(
+        request,
+        'blog/comment.html',
+        {
+            'form': form,
+            'comment': comment,
+            'post_id': post_id,
+            'comment_id': comment_id
+        }
+    )
 
 
 @login_required
