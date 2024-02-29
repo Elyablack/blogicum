@@ -6,19 +6,31 @@ from django.urls import path, include
 from users.views import CreateProfileView
 
 urlpatterns = [
-    path('accounts/', include('users.urls')),
-    path('', include('blog.urls')),
-    path('auth/', include('django.contrib.auth.urls')),
+    path(
+        'accounts/',
+        include('users.urls')
+    ),
+    path(
+        '',
+        include('blog.urls')
+    ),
+    path(
+        'auth/',
+        include('django.contrib.auth.urls')
+    ),
     path(
         'auth/registration/',
         CreateProfileView.as_view(),
         name='registration',
     ),
-
-    path('admin/', admin.site.urls),
-    path('pages/', include('pages.urls')),
-
-
+    path(
+        'admin/',
+        admin.site.urls
+    ),
+    path(
+        'pages/',
+        include('pages.urls')
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'pages.views.page_not_found'

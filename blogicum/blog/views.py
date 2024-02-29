@@ -6,9 +6,7 @@ from django.utils.timezone import now
 
 from .constants import POSTS_PER_PAGE
 from .forms import CommentForm, PostForm
-from .models import Post, Category, Comment
-
-User = get_user_model()
+from .models import Post, Category, Comment, User
 
 
 def get_filtered_posts(post_manager):
