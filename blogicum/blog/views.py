@@ -31,22 +31,22 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, post_id):
-    post_manager = Post.objects
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.author:
         post = get_object_or_404(
-            get_filtered_posts(post_manager),
+            get_filtered_posts(Post.objects),
             pk=post_id
         )
 
     comments = post.comments.all().order_by('created_at')
+    page_obj = create_paginator(comments, request)
     form = CommentForm()
     return render(
         request,
         'blog/detail.html',
         context={
             'post': post,
-            'comments': comments,
+            'page_obj': page_obj,
             'requser': request.user,
             'form': form
         })
