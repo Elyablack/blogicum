@@ -34,15 +34,13 @@ def post_detail(request, post_id):
         post = Post.objects.get_queryset().get(pk=post_id)
     comments_queryset = post.comments.all()
     comments = comments_queryset.annotate_total_comments()
-    form = CommentForm()
     return render(
         request,
         'blog/detail.html',
         context={
             'post': post,
             'comments': comments,
-            'requser': request.user,
-            'form': form
+            'form': CommentForm()
         })
 
 
@@ -75,8 +73,8 @@ def edit_comment(request, post_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user == comment.author:
         if request.method == 'POST':
-            form = CommentForm(request.POST, instance=comment)
-            if form.is_valid():
+            form = CommentForm(request.POST or None, instance=comment)
+            if request.method == 'POST' and form.is_valid():
                 form.save()
                 return redirect('blog:post_detail', post_id=post_id)
         else:
@@ -90,8 +88,6 @@ def edit_comment(request, post_id, comment_id):
                 'post_id': post_id,
                 'comment_id': comment_id
             })
-    else:
-        return redirect('blog:post_detail', post_id=post_id)
 
 
 @login_required
@@ -102,32 +98,24 @@ def comment_delete(request, post_id, comment_id):
     if request.method == 'POST':
         comment.delete()
         return redirect('blog:post_detail', post_id=post_id)
-    context = {'comment': comment}
     return render(
         request,
         'blog/comment.html',
-        context=context
+        context={'comment': comment}
     )
 
 
 @login_required
 def post_create(request):
-    form = PostForm(
-        request.POST or None,
-        files=request.FILES or None)
-    if form.is_valid():
-        create_post = form.save(commit=False)
-        create_post.author = request.user
-        create_post.pub_date = now()
-
-        if create_post.pub_date > now():
-            create_post.is_published = False
-        else:
-            create_post.is_published = True
-
-        create_post.save()
-        return redirect('blog:profile', username=request.user.username)
-
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            create_post = form.save(commit=False)
+            create_post.author = request.user
+            create_post.save()
+            return redirect('blog:profile', username=request.user.username)
+    else:
+        form = PostForm()
     return render(
         request,
         'blog/create.html',
@@ -149,14 +137,26 @@ def post_edit(request, post_id):
         form.save()
         return redirect('blog:post_detail', post_id=post_id)
 
-    template = 'blog/create.html'
-    context = {'form': form, 'post': post, 'is_edit': True}
-    return render(request, template, context)
-
+    return render(
+        request,
+        'blog/create.html',
+        context={'form': form, 'post': post, 'is_edit': True}
+    )
 
 @login_required
 def post_delete(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    if request.user == post.author:
+    if request.user != post.author:
+        return redirect('blog:profile', username=request.user.username)
+
+    form = PostForm(instance=post)
+
+    if request.method == 'POST':
         post.delete()
-    return redirect('blog:profile', username=request.user.username)
+        return redirect('blog:profile', username=request.user.username)
+
+    return render(
+        request,
+        'blog/create.html',
+        {'form': form, 'post': post}
+    )
