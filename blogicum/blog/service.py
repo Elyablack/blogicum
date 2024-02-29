@@ -11,7 +11,11 @@ class PostQuerySet(models.QuerySet):
             pub_date__lte=now(),
             is_published=True,
             category__is_published=True
-        ).select_related('author', 'location', 'category').order_by('-pub_date')
+        ).select_related(
+            'author',
+            'location',
+            'category'
+        ).order_by('-pub_date')
 
 
 class PostManager(models.Manager):

@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
-from django.utils.timezone import now
 
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment, User
@@ -142,6 +141,7 @@ def post_edit(request, post_id):
         'blog/create.html',
         context={'form': form, 'post': post, 'is_edit': True}
     )
+
 
 @login_required
 def post_delete(request, post_id):
