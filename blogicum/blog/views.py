@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment, User
 from .services import (
-    create_paginator, filter_published_posts,
+    create_paginator, filter_published_posts, get_post_annotation
 )
 
 

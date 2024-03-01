@@ -75,8 +75,7 @@ class PostAdmin(admin.ModelAdmin):
             return mark_safe(
                 f'<img src="{obj.image.url}" width="80" height="60">'
             )
-        else:
-            return 'Без изображения'
+
 
 
 @admin.register(Comment)

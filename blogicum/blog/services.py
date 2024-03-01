@@ -4,7 +4,6 @@ from django.utils.timezone import now
 
 from .constants import POSTS_PER_PAGE
 
-
 def create_paginator(posts, request):
     paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
@@ -14,9 +13,9 @@ def create_paginator(posts, request):
 
 def get_post_annotation(posts_queryset):
     return posts_queryset.annotate(
-        comment_count=Count('comments')).select_related('author', 'location',
-                                                        'category').order_by(
-        '-pub_date')
+        comment_count=Count('comments')).select_related(
+        'author', 'location', 'category'
+    ).order_by('-pub_date')
 
 
 def filter_published_posts(posts_queryset):

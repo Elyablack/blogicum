@@ -7,6 +7,10 @@ from users.views import CreateProfileView
 
 urlpatterns = [
     path(
+        'admin/',
+        admin.site.urls
+    ),
+    path(
         'accounts/',
         include('users.urls')
     ),
@@ -22,10 +26,6 @@ urlpatterns = [
         'auth/registration/',
         CreateProfileView.as_view(),
         name='registration',
-    ),
-    path(
-        'admin/',
-        admin.site.urls
     ),
     path(
         'pages/',

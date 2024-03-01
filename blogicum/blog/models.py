@@ -15,7 +15,7 @@ class CreatedAt(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['-created_at']
+        ordering = ('-created_at',)
 
 
 class IsPublishedCreatedAt(CreatedAt):
