@@ -25,10 +25,12 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post.objects.all(), pk=post_id)
-    if not post.is_published and request.user != post.author:
-        raise Http404("Post does not exist")
-
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.author:
+        post = get_object_or_404(
+            filter_published_posts(Post.objects.all()),
+            pk=post_id
+        )
     comments = post.comments.all().order_by('created_at')
     page_obj = create_paginator(comments, request)
     return render(
@@ -112,15 +114,12 @@ def comment_delete(request, post_id, comment_id):
 
 @login_required
 def post_create(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST, files=request.FILES)
-        if form.is_valid():
-            create_post = form.save(commit=False)
-            create_post.author = request.user
-            create_post.save()
-            return redirect('blog:profile', username=request.user.username)
-    else:
-        form = PostForm()
+    form = PostForm(request.POST or None, files=request.FILES or None)
+    if form.is_valid():
+        create_post = form.save(commit=False)
+        create_post.author = request.user
+        create_post.save()
+        return redirect('blog:profile', username=request.user.username)
 
     return render(
         request,
