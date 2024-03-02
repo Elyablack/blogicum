@@ -14,7 +14,8 @@ def create_paginator(posts, request):
 
 def get_post_annotation(posts_queryset):
     return posts_queryset.annotate(
-        comment_count=Count('comments')).select_related(
+        comment_count=Count('comments')
+    ).select_related(
         'author', 'location', 'category'
     ).order_by('-pub_date')
 
