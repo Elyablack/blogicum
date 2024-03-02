@@ -20,6 +20,7 @@ class ProfileEditForm(UserChangeForm):
         fields = (
             'first_name',
             'last_name',
+            'username',
             'email',
         )
 
