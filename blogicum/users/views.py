@@ -11,7 +11,7 @@ User = get_user_model()
 class CreateProfileView(CreateView):
     form_class = ProfileCreationForm
     success_url = reverse_lazy('blog:index')
-    template_name = 'users/registration_form.html'
+    template_name = 'registration/registration_form.html'
 
 
 class EditProfileView(LoginRequiredMixin, UpdateView):

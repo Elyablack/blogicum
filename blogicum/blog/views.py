@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from .forms import CommentForm, PostForm
 from .models import Post, Category, Comment, User
 from .services import (
-    create_paginator, filter_published_posts, get_post_annotation
+    create_paginator, filter_published_posts, get_post_annotation,
 )
 
 
@@ -15,8 +15,10 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True
     )
-    posts = filter_published_posts(category.posts.all())
-    page_obj = create_paginator(posts, request)
+
+    posts = category.posts.all()
+    filtered_posts = filter_published_posts(get_post_annotation(posts))
+    page_obj = create_paginator(filtered_posts, request)
     return render(
         request,
         'blog/category.html',
@@ -46,8 +48,13 @@ def post_detail(request, post_id):
 
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=profile_user)
-    page_obj = create_paginator(posts, request)
+    posts = profile_user.posts.all()
+    annotated_posts = get_post_annotation(posts)
+    if request.user != profile_user:
+        filtered_posts = filter_published_posts(annotated_posts)
+    else:
+        filtered_posts = annotated_posts
+    page_obj = create_paginator(filtered_posts, request)
     return render(
         request,
         'blog/profile.html',
@@ -56,9 +63,14 @@ def profile(request, username):
 
 
 def index(request):
-    posts = filter_published_posts(Post.objects)
-    page_obj = create_paginator(posts, request)
-    return render(request, 'blog/index.html', {'page_obj': page_obj})
+    posts = Post.objects.all()
+    filtered_posts = filter_published_posts(get_post_annotation(posts))
+    page_obj = create_paginator(filtered_posts, request)
+    return render(
+        request,
+        'blog/index.html',
+        {'page_obj': page_obj}
+    )
 
 
 @login_required
