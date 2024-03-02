@@ -12,7 +12,7 @@ urlpatterns = [
         name='registration'
     ),
     path(
-        'profile/edit/',
+        'profile/<slug:username>/edit/',
         views.EditProfileView.as_view(),
         name='edit_profile'
     ),
